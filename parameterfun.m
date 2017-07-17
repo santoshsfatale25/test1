@@ -1,0 +1,3 @@
+function y = parameterfun(t_c,Prob,Cache_size)
+y = sum((exp(-Prob*t_c)))+Cache_size-length(Prob);%(a - b*x(1)^2 + x(1)^4/3)*x(1)^2 + x(1)*x(2) + ...
+    %(-c + c*x(2)^2)*x(2)^2;

@@ -1,0 +1,3 @@
+function y = parameterfunFIFO(T_c,Prob,Cache_size)
+y = sum((Prob*T_c)./(ones(length(Prob),1)+Prob*T_c))-Cache_size;%(a - b*x(1)^2 + x(1)^4/3)*x(1)^2 + x(1)*x(2) + ...
+    %(-c + c*x(2)^2)*x(2)^2;
