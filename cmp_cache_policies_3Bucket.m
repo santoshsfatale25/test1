@@ -811,24 +811,9 @@ clear R1_hit_count_Zipf_LeastExpe R1_hit_count_Zipf_LRU R1_hit_count_Zipf_RAND R
 clear N_min_Zipf_LeastExpe N_min_Zipf_LRU N_min_Zipf_RAND N_min_Zipf_SMP N_max_Zipf_LeastExpe N_max_Zipf_LRU N_max_Zipf_RAND N_max_Zipf_SMP
 clear produ t_inst N_min N_max N_min_temp N_max_temp
 
-%% Therotical Upper Bound 3 class Distribution
-% Freshness=zeros(Producers,length(CacheSize));
-% for cache=1:length(CacheSize)
-%     N_a=CacheSize(cache);
-%     N_b=CacheSize(cache);
-%     N_c=Producers-2*CacheSize(cache);
-%     Freshness(:,cache)=[repmat(F_a,N_a,1);repmat(F_b,N_b,1);repmat(F_c,N_c,1)];
-% end
-
-upperBound1_Uni=sum(((ProducersProbability_Uni.^2).*Freshness_Uni)./(ones(Producers,length(CacheSize))+ProducersProbability_Uni.*Freshness_Uni));
-upperBound2_Uni=zeros(1,length(CacheSize));
-for cache=1:length(CacheSize)
-    upperBound2_Uni(1,cache)=sum(ProducersProbability_Uni(1:CacheSize(cache),cache));
-end
-
-upperBoundMin_Uni=min(upperBound1_Uni,upperBound2_Uni);
-
 %% Therotical Upper Bound Zipf Distribution
+
+clear temp1;
 temp1=repmat(ProducersProbability_Zipf',1,length(CacheSize));
 upperBound1_Zipf=sum(((temp1.^2).*Freshness_Zipf)./(ones(Producers,length(CacheSize))+temp1.*Freshness_Zipf));
 
@@ -838,37 +823,63 @@ for cache=1:length(CacheSize)
 end
 
 upperBoundMin_Zipf=min(upperBound1_Zipf,upperBound2_Zipf);
+clear temp1
 
 %% Result Plot
-% myplot(xinput,yinputMatrix,xlabel1,ylabel1,title1,legend1,saveFigAs)
+% myplotNew(xinput,yinputMatrix_avg,yinputMatrix_stdDev,xlabel1,ylabel1,title1,legend1,xlim1,ylim1,saveFigAs,directory)
+% myplotNew will take care of 3\sigma error-bar in plot.
 clear temp1;
 temp1=cd;
 xinput(:,1)=CacheSize;
-yinputMatrix=horzcat(upperBoundMin_Uni',avg_h_LU',hit_rate_total_Sim_Uni_LRU',hit_rate_total_Sim_Uni_RAND',hit_rate_total_Sim_Uni_SMP');
+yinputMatrix_avg=horzcat(upperBoundMin_Zipf',hit_rate_total_Sim_Zipf_LeastExpe_Average',hit_rate_total_Sim_Zipf_LRU_Average',hit_rate_total_Sim_Zipf_RAND_Average',hit_rate_total_Sim_Zipf_SMP_Average');
+yinputMatrix_stdDev=horzcat(hit_rate_total_Sim_Zipf_LeastExpe_stdDev',hit_rate_total_Sim_Zipf_LRU_stdDev',hit_rate_total_Sim_Zipf_RAND_stdDev',hit_rate_total_Sim_Zipf_SMP_stdDev');
 xlabel1=sprintf('Cache size');
-ylabel1=sprintf('Hit rate');
+ylabel1=sprintf('Cache hit ratio');
 % title1=sprintf('Hit rate (p_{hit}) Vs Cache size');
-directory='D:\IoT\IoT\31Jan\LeastExpected\New_Results24092017';
-legend1={sprintf('UB'),sprintf('LU'),sprintf('LRU'),sprintf('RAND'),sprintf('SMP')};
-saveFigAs=sprintf('Hit_rate_Vs_Cache_Size_policies_Uniform');
-myplot(xinput,yinputMatrix,xlabel1,ylabel1,legend1,saveFigAs,directory);
-cd(temp1);
-
-%%
-yinputMatrix=horzcat(upperBoundMin_Zipf',hit_rate_total_Sim_Zipf_LeastExpe',hit_rate_total_Sim_Zipf_LRU',hit_rate_total_Sim_Zipf_RAND',hit_rate_total_Sim_Zipf_SMP');
-xlabel1=sprintf('Cache size');
-ylabel1=sprintf('Hit rate');
-% title1=sprintf('Hit rate (p_{hit}) Vs Cache size');
-directory='D:\IoT\IoT\31Jan\LeastExpected\New_Results24092017';
+directory='D:\IoT\IoT\31Jan\LeastExpected\NCC_Results';
 legend1={sprintf('UB'),sprintf('LU'),sprintf('LRU'),sprintf('RAND'),sprintf('SMP')};
 saveFigAs=sprintf('Hit_rate_Vs_Cache_Size_policies_Zipf');
-myplot(xinput,yinputMatrix,xlabel1,ylabel1,legend1,saveFigAs,directory);
+xlim1=[10 40];
+ylim1=[0 1];
+myplotNew(xinput,yinputMatrix_avg,yinputMatrix_stdDev,xlabel1,ylabel1,legend1,xlim1,ylim1,saveFigAs,directory);
+cd(temp1);
+
 %% always change the dataname for saving. Keep it simple and discriptive.
 % temp1=cd;
-cd('D:\IoT\IoT\31Jan\LeastExpected\New_Results24092017\Data')
-save('cmp_cache_policies_3Class_Sqrt_Freshness');
+cd('D:\IoT\IoT\31Jan\LeastExpected\NCC_Results')
+save('cmp_cache_policies_3Class_Zipf');
+
+
+%% Result Plot
+% myplot(xinput,yinputMatrix,xlabel1,ylabel1,title1,legend1,saveFigAs)
+% clear temp1;
+% temp1=cd;
+% xinput(:,1)=CacheSize;
+% yinputMatrix=horzcat(upperBoundMin_Uni',avg_h_LU',hit_rate_total_Sim_Uni_LRU',hit_rate_total_Sim_Uni_RAND',hit_rate_total_Sim_Uni_SMP');
+% xlabel1=sprintf('Cache size');
+% ylabel1=sprintf('Hit rate');
+% % title1=sprintf('Hit rate (p_{hit}) Vs Cache size');
+% directory='D:\IoT\IoT\31Jan\LeastExpected\New_Results24092017';
+% legend1={sprintf('UB'),sprintf('LU'),sprintf('LRU'),sprintf('RAND'),sprintf('SMP')};
+% saveFigAs=sprintf('Hit_rate_Vs_Cache_Size_policies_Uniform');
+% myplot(xinput,yinputMatrix,xlabel1,ylabel1,legend1,saveFigAs,directory);
+% cd(temp1);
+% 
+% %%
+% yinputMatrix=horzcat(upperBoundMin_Zipf',hit_rate_total_Sim_Zipf_LeastExpe',hit_rate_total_Sim_Zipf_LRU',hit_rate_total_Sim_Zipf_RAND',hit_rate_total_Sim_Zipf_SMP');
+% xlabel1=sprintf('Cache size');
+% ylabel1=sprintf('Hit rate');
+% % title1=sprintf('Hit rate (p_{hit}) Vs Cache size');
+% directory='D:\IoT\IoT\31Jan\LeastExpected\New_Results24092017';
+% legend1={sprintf('UB'),sprintf('LU'),sprintf('LRU'),sprintf('RAND'),sprintf('SMP')};
+% saveFigAs=sprintf('Hit_rate_Vs_Cache_Size_policies_Zipf');
+% myplot(xinput,yinputMatrix,xlabel1,ylabel1,legend1,saveFigAs,directory);
+% %% always change the dataname for saving. Keep it simple and discriptive.
+% % temp1=cd;
+% cd('D:\IoT\IoT\31Jan\LeastExpected\New_Results24092017\Data')
+% save('cmp_cache_policies_3Class_Sqrt_Freshness');
 
 
 %%
-clear avg_h_LU var_h_LU
-h_LU=sum()
+% clear avg_h_LU var_h_LU
+% h_LU=sum()
